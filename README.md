@@ -134,6 +134,43 @@ $ export RUST_LOG=rust_ffi_checker
 $ export RUST_LOG=rust_ffi_checker=debug
 ```
 
+
+
+## 解决bug
+```bash
+root@3d50d2cc2a6a:~/cxx_memory_relation# cargo clean
+/root/.cargo/bin/cargo-ffi-checker ffi-checker
+     Removed 0 files
+/root/.cargo/bin/cargo-ffi-checker: error while loading shared libraries: librustc_driver-339e2dcdcdc9cf07.so: cannot open shared object file: No such file or directory
+```
+
+### 设置 LD_LIBRARY_PATH：
+```bash
+export FFI_CHECKER_TOP_CRATE_NAME=cxx_memory
+export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
+```
+#### 确保在项目根目录中存在 rust-toolchain 文件，内容如下：
+```toml
+[toolchain]
+channel = "nightly"
+components = ["rustc-dev", "llvm-tools-preview"]
+```
+
+#### 
+```bash
+export FFI_CHECKER_TOP_CRATE_NAME=cxx_memory_relation
+
+# 清理项目
+cargo clean
+
+# 设置 LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
+
+# 运行 cargo-ffi-checker
+/root/.cargo/bin/cargo-ffi-checker ffi-checker -- --precision_filter mid
+```
+
+
 For more settings, please see the documents of [env_logger](https://crates.io/crates/env_logger).
 
 ## Troubleshooting
